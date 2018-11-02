@@ -66,7 +66,8 @@ def extract_next_links(rawDataObj):
     Suggested library: lxml
     '''
     #added comment
-
+    for item in html.iterlinks(rawDataObj.content):
+        outputLinks.append(item[2])
     return outputLinks
 
 def is_valid(url):
