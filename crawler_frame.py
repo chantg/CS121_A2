@@ -66,8 +66,12 @@ def extract_next_links(rawDataObj):
     Suggested library: lxml
     '''
     #added comment
-    for item in html.iterlinks(rawDataObj.content):
-        outputLinks.append(item[2])
+    if(rawDataObj.content):
+        document = html.fromstring(rawDataObj.content) #create a document from the raw data object
+        document.make_links_absolute("http://www.ics.uci.edu/") #resolve all incomplete links in the document with the ics domain
+        for item in document.iterlinks(): #grab every link in the page and add it to the output
+            outputLinks.append(item[2])
+            #print(item[2]) #uncomment to view links, delete before submission
     return outputLinks
 
 def is_valid(url):
