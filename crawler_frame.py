@@ -52,25 +52,40 @@ class CrawlerFrame(IApplication):
         print (
             "Time time spent this session: ",
             time() - self.starttime, " seconds.")
+def signal_handler(sig, frame):
+
+    global maxOut
+    global greatestURL
+    try:
+        with open(os.path.dirname(os.path.abspath(inspect.stack()[0][1])) + "/analysis.txt") as f:
+            line = f.readline()
+            line.split(":")
+            if(maxOut > int(line[1])):
+                file.write(greatestURL + " : " + str(maxOut))
+    except:
+        file = open(os.path.dirname(os.path.abspath(inspect.stack()[0][1])) + "/analysis.txt", "w+")
+        file.write(greatestURL + " : " + str(maxOut))
+        file.close()
+    sys.exit(0)
     
 def extract_next_links(rawDataObj):
     outputLinks = []
-    '''
-    rawDataObj is an object of type UrlResponse declared at L20-30
-    datamodel/search/server_datamodel.py
-    the return of this function should be a list of urls in their absolute form
-    Validation of link via is_valid function is done later (see line 42).
-    It is not required to remove duplicates that have already been downloaded. 
-    The frontier takes care of that.
+    global maxOut
+    global greatestURL
+    signal.signal(signal.SIGINT, signal_handler) #handles the SigInt aignal in order to capture the correct analysis
     
-    Suggested library: lxml
-    '''
     if(rawDataObj.content):
+        
         document = html.fromstring(rawDataObj.content) #create a document from the raw data object
+        
         document.make_links_absolute("http://www.ics.uci.edu/") #resolve all incomplete links in the document with the ics domain
         for item in document.iterlinks(): #grab every link in the page and add it to the output
             outputLinks.append(item[2])
             #print(item[2]) #uncomment to view links, delete before submission
+    
+    if(len(outputLinks) > maxOut):  #after adding out links check if it's the most out link in the list
+        maxOut = len(outputLinks)
+        greatestURL = rawDataObj.url
     return outputLinks
 
 def is_valid(url):
