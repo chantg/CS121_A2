@@ -1,5 +1,5 @@
 import logging
-from datamodel.search.Timothy ChanTyler Bradley_datamodel import Timothy ChanTyler BradleyLink, OneTimothy ChanTyler BradleyUnProcessedLink
+from datamodel.search.TylerrbChantg_datamodel import TylerrbChantgLink, OneTylerrbChantgUnProcessedLink
 from spacetime.client.IApplication import IApplication
 from spacetime.client.declarations import Producer, GetterSetter, Getter
 from lxml import html,etree
@@ -13,29 +13,29 @@ from uuid import uuid4
 logger = logging.getLogger(__name__)
 LOG_HEADER = "[CRAWLER]"
 
-@Producer(Timothy ChanTyler BradleyLink)
-@GetterSetter(OneTimothy ChanTyler BradleyUnProcessedLink)
+@Producer(TylerrbChantgLink)
+@GetterSetter(OneTylerrbChantgUnProcessedLink)
 class CrawlerFrame(IApplication):
-    app_id = "Timothy ChanTyler Bradley"
+    app_id = "TylerrbChantg"
 
     def __init__(self, frame):
-        self.app_id = "Timothy ChanTyler Bradley"
+        self.app_id = "TylerrbChantg"
         self.frame = frame
 
 
     def initialize(self):
         self.count = 0
-        links = self.frame.get_new(OneTimothy ChanTyler BradleyUnProcessedLink)
+        links = self.frame.get_new(OneTylerrbChantgUnProcessedLink)
         if len(links) > 0:
             print "Resuming from the previous state."
             self.download_links(links)
         else:
-            l = Timothy ChanTyler BradleyLink("http://www.ics.uci.edu/")
+            l = TylerrbChantgLink("http://www.ics.uci.edu/")
             print l.full_url
             self.frame.add(l)
 
     def update(self):
-        unprocessed_links = self.frame.get_new(OneTimothy ChanTyler BradleyUnProcessedLink)
+        unprocessed_links = self.frame.get_new(OneTylerrbChantgUnProcessedLink)
         if unprocessed_links:
             self.download_links(unprocessed_links)
 
@@ -46,7 +46,7 @@ class CrawlerFrame(IApplication):
             links = extract_next_links(downloaded)
             for l in links:
                 if is_valid(l):
-                    self.frame.add(Timothy ChanTyler BradleyLink(l))
+                    self.frame.add(TylerrbChantgLink(l))
 
     def shutdown(self):
         print (
@@ -65,7 +65,6 @@ def extract_next_links(rawDataObj):
     
     Suggested library: lxml
     '''
-    #added comment
     if(rawDataObj.content):
         document = html.fromstring(rawDataObj.content) #create a document from the raw data object
         document.make_links_absolute("http://www.ics.uci.edu/") #resolve all incomplete links in the document with the ics domain
@@ -84,8 +83,16 @@ def is_valid(url):
     parsed = urlparse(url)
     if parsed.scheme not in set(["http", "https"]):
         return False
+    folders = re.split("/", parsed.path)
+    folder_map = {}
+    for folder in folders:
+        if (folder_map.get(folder) or len(folder) > 65): #if any part of the url is a long string or if we have repeating directories it is likely dynamically generated
+            return False
+        folder_map[folder] = 1
     try:
         return ".ics.uci.edu" in parsed.hostname \
+            and not re.search("\?|calendar", parsed.path) \ #get rid of query results and calendar pages
+            and len(folders) < 10 \
             and not re.match(".*\.(css|js|bmp|gif|jpe?g|ico" + "|png|tiff?|mid|mp2|mp3|mp4"\
             + "|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf" \
             + "|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso|epub|dll|cnf|tgz|sha1" \
