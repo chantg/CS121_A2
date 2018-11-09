@@ -91,7 +91,7 @@ def is_valid(url):
         folder_map[folder] = 1
     try:#get rid of query results and calendar pages
         return ".ics.uci.edu" in parsed.hostname \
-            and not re.search("\?|calendar", parsed.path) \ 
+            and not re.search("\?|calendar", parsed.path) \
             and len(folders) < 10 \
             and not re.match(".*\.(css|js|bmp|gif|jpe?g|ico" + "|png|tiff?|mid|mp2|mp3|mp4"\
             + "|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf" \
